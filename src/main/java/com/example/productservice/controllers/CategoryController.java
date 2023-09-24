@@ -1,11 +1,14 @@
-package controllers;
+package com.example.productservice.controllers;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import service.CategoryService;
-
+import com.example.productservice.service.CategoryService;
+@Getter
+@Setter
 @RestController
 public class CategoryController {
 
