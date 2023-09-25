@@ -81,7 +81,9 @@ public class ProductService {
     public Product updateProduct(Long productId,ProductRequestDTO requestDTO){
         RestTemplate restTemplate=restTemplateBuilder.build();
         ResponseEntity<ProductRequestDTO> response=restTemplate.postForEntity("https://fakestoreapi.com/products/{productId}",
-         requestDTO,ProductRequestDTO.class,productId);
+        requestDTO,
+        ProductRequestDTO.class,
+        productId);
 
         ProductRequestDTO updatedDTO=response.getBody();
         Product product =new Product();
