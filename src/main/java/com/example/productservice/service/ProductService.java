@@ -14,6 +14,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.RequestEntity.delete;
+
 @Getter
 @Setter
 @Service
@@ -96,4 +98,9 @@ public class ProductService {
         product.setImage(updatedDTO.getImage());
         return product;
     }
+    /*public Product deleteProduct(Long productId ){
+        RestTemplate restTemplate=restTemplateBuilder.build();
+        restTemplate.delete("https://fakestoreapi.com/products/{productId}",
+                ProductRequestDTO.class,productId);
+    }*/
 }
