@@ -28,12 +28,17 @@ public class ProductController {
 
         return productService.addSingleProduct(requestDTO);
     }
-    @PutMapping("/products/{productId}")
+    @PatchMapping("/products/{productId}")
     public Product updateProduct(@PathVariable("productId") Long productId,@RequestBody ProductRequestDTO requestDTO){
         return productService.updateProduct(productId, requestDTO);
     }
     @DeleteMapping("/products/{productId}")
-    public String deleteProduct(@PathVariable("productId") Long productId){
-        return "deleting product with productId"+productId;
+    public Product deleteProduct(@PathVariable("productId") Long productId){
+        return productService.deleteProduct(productId);
     }
+    @PutMapping("/products/{productId}")
+    public Product replaceProduct(@PathVariable("productId") Long productId,@RequestBody ProductRequestDTO requestDTO){
+        return productService.replaceProduct(productId,requestDTO);
+    }
+
 }

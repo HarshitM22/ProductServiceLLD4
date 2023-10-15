@@ -7,12 +7,19 @@ import com.example.productservice.models.Product;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.RequestEntity.delete;
 
@@ -23,6 +30,14 @@ public class ProductService {
     private RestTemplateBuilder restTemplateBuilder;
     public ProductService(RestTemplateBuilder restTemplateBuilder){
         this.restTemplateBuilder=restTemplateBuilder;
+    }
+    public <T> ResponseEntity<T> requestForEntity(HttpMethod httpMethod,String url, @Nullable Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
+        RestTemplate restTemplate = restTemplateBuilder.requestFactory(
+                HttpComponentsClientHttpRequestFactory.class
+        ).build();
+        RequestCallback requestCallback = restTemplate.httpEntityCallback(request, responseType);
+        ResponseExtractor<ResponseEntity<T>> responseExtractor = restTemplate.responseEntityExtractor(responseType);
+        return restTemplate.execute(url, httpMethod, requestCallback, responseExtractor, uriVariables);
     }
     public List<Product> getAllProduct(){
         RestTemplate restTemplate=restTemplateBuilder.build();
@@ -81,10 +96,11 @@ public class ProductService {
     return product;
     }
     public Product updateProduct(Long productId,ProductRequestDTO requestDTO){
-        RestTemplate restTemplate=restTemplateBuilder.build();
-        ResponseEntity<ProductRequestDTO> response=restTemplate.postForEntity("https://fakestoreapi.com/products/{productId}",
+        //RestTemplate restTemplate=restTemplateBuilder.build();
+        ResponseEntity<ProductRequestDTO> response=requestForEntity(HttpMethod.PATCH,
+                "https://fakestoreapi.com/products/{productId}",
         requestDTO,
-        ProductRequestDTO.class,
+                ProductRequestDTO.class,
         productId);
 
         ProductRequestDTO updatedDTO=response.getBody();
@@ -98,9 +114,38 @@ public class ProductService {
         product.setImage(updatedDTO.getImage());
         return product;
     }
-    /*public Product deleteProduct(Long productId ){
+    public Product deleteProduct(Long productId ){
         RestTemplate restTemplate=restTemplateBuilder.build();
-        restTemplate.delete("https://fakestoreapi.com/products/{productId}",
+        ResponseEntity<ProductRequestDTO> response=requestForEntity(HttpMethod.DELETE,"https://fakestoreapi.com/products/{productId}",null,
                 ProductRequestDTO.class,productId);
-    }*/
+
+        ProductRequestDTO updatedDTO=response.getBody();
+        Product product =new Product();
+        product.setId(updatedDTO.getId());
+        product.setTitle(updatedDTO.getTitle());
+        product.setPrice(updatedDTO.getPrice());
+        Category category=new Category();
+        category.setName(updatedDTO.getCategory());
+        product.setCategory(category);
+        product.setImage(updatedDTO.getImage());
+        return product;
+    }
+    public Product replaceProduct(Long productId,ProductRequestDTO requestDTO){
+        ResponseEntity<ProductRequestDTO> response=requestForEntity(HttpMethod.PUT,
+                "https://fakestoreapi.com/products/{productId}",
+                requestDTO,
+                ProductRequestDTO.class,
+                productId);
+
+        ProductRequestDTO updatedDTO=response.getBody();
+        Product product =new Product();
+        product.setId(updatedDTO.getId());
+        product.setTitle(updatedDTO.getTitle());
+        product.setPrice(updatedDTO.getPrice());
+        Category category=new Category();
+        category.setName(updatedDTO.getCategory());
+        product.setCategory(category);
+        product.setImage(updatedDTO.getImage());
+        return product;
+    }
 }
