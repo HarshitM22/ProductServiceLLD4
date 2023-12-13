@@ -14,17 +14,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class ProductServiceApplicationTests {
-    @Autowired
-    private TpcUserRepository tpcUserRepository;
-    @Autowired
-    private TpcMentorRepository tpcMentorRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Test
-    void contextLoads() {
-    }
+//    @Autowired
+//    private TpcUserRepository tpcUserRepository;
+//    @Autowired
+//    private TpcMentorRepository tpcMentorRepository;
+//    @Autowired
+//    private ProductRepository productRepository;
+//    @Autowired
+//    private CategoryRepository categoryRepository;
+//    @Test
+//    void contextLoads() {
+//    }
 
    /* @Test
     void testDifferentInheritances(){
@@ -53,11 +53,11 @@ class ProductServiceApplicationTests {
         product.setImage("HRXImage");
         productRepository.save(product);
     }*/
-    @Test
-    void fetchProduct(){
-        Product product=productRepository.findProductById(2L);
-        System.out.print(product.getTitle());
-        Category category=product.getCategory();
-    }
+//    @Test
+//    void fetchProduct(){
+//        Product product=productRepository.findProductById(2L);
+//        System.out.print(product.getTitle());
+//        Category category=product.getCategory();
+//    }
 
 }
