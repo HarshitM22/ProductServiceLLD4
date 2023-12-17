@@ -7,6 +7,7 @@ import com.example.productservice.models.Product;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -18,6 +19,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,8 +30,11 @@ import static org.springframework.http.RequestEntity.delete;
 @Service
 public class ProductService {
     private RestTemplateBuilder restTemplateBuilder;
-    public ProductService(RestTemplateBuilder restTemplateBuilder){
+    //private Map<Long,Object> fakeStoreProducts=new HashMap<>();
+    private RedisTemplate<Long,Object> redisTemplate;
+    public ProductService(RestTemplateBuilder restTemplateBuilder,RedisTemplate<Long,Object> redisTemplate){
         this.restTemplateBuilder=restTemplateBuilder;
+        this.redisTemplate=redisTemplate;
     }
     public <T> ResponseEntity<T> requestForEntity(HttpMethod httpMethod,String url, @Nullable Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
         RestTemplate restTemplate = restTemplateBuilder.requestFactory(
@@ -60,6 +65,14 @@ public class ProductService {
     return allProduct;
     }
     public Product getSingleProduct(Long productId){
+//        if(fakeStoreProducts.containsKey(productId)){
+//            return (Product) fakeStoreProducts.get(productId);
+//        }
+        Product redisProduct= (Product) redisTemplate.opsForHash().get(productId,"PRODUCTS");
+
+        if(redisProduct!=null){
+            return redisProduct;
+        }
         RestTemplate restTemplate=restTemplateBuilder.build();
         ResponseEntity<ProductRequestDTO> response=restTemplate.getForEntity(
                 "https://fakestoreapi.com/products/{id}",
@@ -67,6 +80,7 @@ public class ProductService {
                 productId
         );
         ProductRequestDTO requestDTO=response.getBody();
+
         Product product =new Product();
         product.setId(requestDTO.getId());
         product.setTitle(requestDTO.getTitle());
@@ -75,6 +89,8 @@ public class ProductService {
         category.setName(requestDTO.getCategory());
         product.setCategory(category);
         product.setImage(requestDTO.getImage());
+        //fakeStoreProducts.put(productId,product);
+        redisTemplate.opsForHash().put(productId,"PRODUCTS",product);
     return product;
     }
     public Product addSingleProduct(ProductRequestDTO requestDTO){

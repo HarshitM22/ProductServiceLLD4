@@ -15,15 +15,18 @@ public class SpringSecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                                 .requestMatchers("/products").hasAuthority("ADMIN")
-                        .anyRequest().authenticated()//only allow person who has loggedin to be access to anyurl
-                        //.anyRequest().permitAll()//allow anyone to acces anyurl even without logging in
+                        .requestMatchers("/webhooks/stripe/").permitAll()
+                        //.anyRequest().authenticated()//only allow person who has loggedin to be access to anyurl
+                        .anyRequest().permitAll()//allow anyone to acces anyurl even without logging in
                 )
         .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(new CustomJwtAuthenticationConverter())
                         )
-               );
+               )
+                .csrf().disable()
+                .cors().disable();
         return http.build();
     }
 }
